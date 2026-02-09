@@ -8,7 +8,21 @@ tablero = []
 def main():
     print("-------BUSCAMINAS-------\n created by Héctor Paredes\n all rights reserved\n")
     
-    iniciar_partida() #inicia partida y ejecuta todas las funciones del programa
+    while True:
+        iniciar_partida() #Inicia la partida y ejecuta todas las funciones de este programa
+            
+        # preguntar si reiniciar o salir
+        while True:
+            respuesta = input("\n¿Desea jugar otra partida? (s/n): ").strip().lower()
+                
+            if respuesta == 's':
+                break #romper bucle y reiniciar 
+            elif respuesta == 'n':
+                print("\nGracias por jugar. ¡Hasta la próxima!")
+                return # terminar programa
+            else:
+                print("Opción no válida. Por favor ingrese 's' para sí o 'n' para no.")
+    
                
 # ----- definicion de metodos -----
 
@@ -36,9 +50,10 @@ def menu():
 
         if modo == "1": #9x9, 10 minas
             filas_cols = 9 
-            num_minas = 10
+            num_minas = 1
                 
             print("Iniciando nueva partida...")
+            
             generar_tablero(filas_cols, num_minas)
             imprimir_tablero()
             partida()
@@ -293,8 +308,8 @@ def desplazar_mina(f,c):
         if colocado: break
         for j in range(tamaño):
             #si encuentra un lugar sin mina, coloca la mina ahi
-            if tablero['interno'][i][j] != '*' and (i != f or j != c): 
-                tablero['interno'][i][j] = '*'
+            if tablero['minas'][i][j] != '*' and (i != f or j != c): 
+                tablero['minas'][i][j] = '*'
                 colocado = True
                 break
             
@@ -329,8 +344,5 @@ def mostrar_minas():
             if es_mina(f, c):
                 tablero['visual'][f][c] = '*'
     return
-
-
-
 
 if __name__ == "__main__": main()

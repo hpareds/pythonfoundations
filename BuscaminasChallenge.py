@@ -1,5 +1,6 @@
 import random
 import os
+import time
 
 #Variables global del tablero
 tablero = []
@@ -49,17 +50,42 @@ def menu():
         # inicia partida e imprime tablero con los parámetros, como asi ejecuta la partida
 
         if modo == "1": #9x9, 10 minas
+            #parametros modo normal
             filas_cols = 9 
             num_minas = 10
                 
             print("Iniciando nueva partida...")
             
             generar_tablero(filas_cols, num_minas)
+            
+            '''Imprimir minas donde realmente estan (motivos de test) 
+            print("\n[DEBUG] Mapa de minas (TRAMPA):")
+            
+            # 1. Imprimir encabezado de números
+            print("   ", end="")
+            for i in range(filas_cols):
+                print(f"{i+1:2}", end=" ")
+            print()
+
+            # 2. Imprimir filas con letras
+            for i in range(filas_cols):
+                letra_fila = chr(65 + i) # A, B, C...
+                print(f"{letra_fila}  ", end="")
+                
+                for celda in tablero['minas'][i]:
+                    # Si es espacio vacío, mostramos punto para que se vea mejor
+                    visual = '.' if celda == ' ' else '*'
+                    print(f"{visual} ", end=" ")
+                print()
+            print("-" * (filas_cols * 3 + 4) + "\n")
+            '''
+            
             imprimir_tablero()
             partida()
             break
             
         elif modo == "2": #16x16, 25 minas
+            #parametros modo dificil
             filas_cols = 16
             num_minas = 25
                 
@@ -143,29 +169,51 @@ def partida():
     primer_movimiento = True
     tamaño = tablero['tamaño']
     
+    inicio = time.time() #cronometro 
+    
+    os.system('cls' if os.name == 'nt' else 'clear') #limpiar consola 
+    imprimir_tablero()
+
     while jugando:
-        f,c = pedir_coordenada()   
-        continuar = buscar_coordenada(f,c, primer_movimiento)
-        primer_movimiento = False #despues del primer movimiento, ya no se puede desplazar la mina
-        imprimir_tablero()
-        #si una mina exploto aqui termina el juego
+        f, c = pedir_coordenada()   
+        continuar = buscar_coordenada(f, c, primer_movimiento)
+        primer_movimiento = False # si el primer movimiento es una mina este es desplazada
+        
+        if continuar:
+            os.system('cls' if os.name == 'nt' else 'clear') #limpiar consola para mostrar el tablero actualizado 
+            imprimir_tablero()
+
+        # validar si perdio
         if not continuar:
-            jugando = False  
-        #verificar si gano
+            fin = time.time()
+            tiempo_total = int(fin - inicio) #tiempo total en segundos
+            print(f"\nDuraste {tiempo_total} segundos antes de explotar.")            
+            jugando = False # Termina el juego
+
+        # validar si gano
         else:
             victoria = True
-            #buscar casillas sin revelar
             for i in range(tamaño):
                 for j in range(tamaño):
-                    #si hay una casilla sin revelar que no es mina, no ha ganado
-                    if tablero['minas'][i][j] != '*' and tablero['visual'][i][j] == '.':
+                    if tablero['minas'][i][j] != '*' and tablero['visual'][i][j] == '.': #validar si hay casillas sin minas
                         victoria = False
                         break
-                if not victoria:
+                if not victoria: #si no exploto una mina o no gano sigue el juego dentro del bucle
                     break    
-            if victoria:
-                print("FELICIDADES, GANASTE ")
-                jugando = False # indica que se termino el juego
+
+            if victoria: #victoria
+                # Calculamos tiempo también al ganar
+                fin = time.time()
+                tiempo_total = int(fin - inicio)
+                minutos = tiempo_total // 60
+                segundos = tiempo_total % 60
+                
+                # Mostramos tablero final limpio
+                imprimir_tablero()                
+
+                print(f"\nTiempo: {minutos} min {segundos} s")
+                
+                jugando = False 
     return
 
 def pedir_coordenada():
@@ -176,9 +224,9 @@ def pedir_coordenada():
     tamaño = tablero['tamaño']
     
     while True:
-        coordenada = input("\nIngrese una coordenada (Ejemplo A5): ").strip().upper()
+        coordenada = input("\nIngrese una coordenada (Ejemplo A5): ").strip().upper() #convertir a mayusculas
         #valida formato
-        if len(coordenada) < 2 or len(coordenada) > 3:
+        if len(coordenada) < 2 or len(coordenada) > 3: #validar formato
             print("Formato inválido. Intente de nuevo.")
             continue
         

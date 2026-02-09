@@ -50,7 +50,7 @@ def menu():
 
         if modo == "1": #9x9, 10 minas
             filas_cols = 9 
-            num_minas = 1
+            num_minas = 10
                 
             print("Iniciando nueva partida...")
             

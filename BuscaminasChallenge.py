@@ -1,30 +1,18 @@
+# Buscaminas Challenge
+# Presentado por Héctor Paredes
 import random
 import os
 import time
 
 #Variables global del tablero
-tablero = []
+tablero = [] 
 
 #metodo main
 def main():
     print("-------BUSCAMINAS-------\n created by Héctor Paredes\n all rights reserved\n")
     
-    while True:
-        iniciar_partida() #Inicia la partida y ejecuta todas las funciones de este programa
-            
-        # preguntar si reiniciar o salir
-        while True:
-            respuesta = input("\n¿Desea jugar otra partida? (s/n): ").strip().lower()
-                
-            if respuesta == 's':
-                break #romper bucle y reiniciar 
-            elif respuesta == 'n':
-                print("\nGracias por jugar. ¡Hasta la próxima!")
-                return # terminar programa
-            else:
-                print("Opción no válida. Por favor ingrese 's' para sí o 'n' para no.")
-    
-               
+    iniciar_partida() #Inicia la partida y ejecuta todas las funciones de este programa
+                           
 # ----- definicion de metodos -----
 
 def iniciar_partida():
@@ -32,12 +20,23 @@ def iniciar_partida():
     Ajustamos todo para reiniciar una partida,
     en caso que haya terminado recien una
     """
-    
     global tablero
-    tablero = [] #reset de tablero
-    
-    menu() #muestra el menu para seleccionar modo de juego ejecutar otras funciones del programa
-    return
+
+    # Bucle principal: iniciar una partida y al finalizar preguntar si se desea jugar otra
+    while True:
+        tablero = []  # reset del tablero para nueva partida
+        menu()  # menu para dificultad y generar partida
+
+        # preguntar si reiniciar o salir
+        while True:
+            respuesta = input("\n¿Desea jugar otra partida? (s/n): ").strip().lower()
+            if respuesta == 's':
+                break  # iniciar otra partida (se repite el bucle exterior)
+            elif respuesta == 'n':
+                print("\nGracias por jugar. ¡Hasta la próxima!")
+                return  # terminar el programa
+            else:
+                print("Opción no válida. Por favor ingrese 's' para sí o 'n' para no.")
 
 def menu():
     """
@@ -52,34 +51,11 @@ def menu():
         if modo == "1": #9x9, 10 minas
             #parametros modo normal
             filas_cols = 9 
-            num_minas = 10
+            num_minas = 1
                 
             print("Iniciando nueva partida...")
             
-            generar_tablero(filas_cols, num_minas)
-            
-            '''Imprimir minas donde realmente estan (motivos de test) 
-            print("\n[DEBUG] Mapa de minas (TRAMPA):")
-            
-            # 1. Imprimir encabezado de números
-            print("   ", end="")
-            for i in range(filas_cols):
-                print(f"{i+1:2}", end=" ")
-            print()
-
-            # 2. Imprimir filas con letras
-            for i in range(filas_cols):
-                letra_fila = chr(65 + i) # A, B, C...
-                print(f"{letra_fila}  ", end="")
-                
-                for celda in tablero['minas'][i]:
-                    # Si es espacio vacío, mostramos punto para que se vea mejor
-                    visual = '.' if celda == ' ' else '*'
-                    print(f"{visual} ", end=" ")
-                print()
-            print("-" * (filas_cols * 3 + 4) + "\n")
-            '''
-            
+            generar_tablero(filas_cols, num_minas)            
             imprimir_tablero()
             partida()
             break
@@ -113,11 +89,7 @@ def generar_tablero(filas_cols, num_minas):
     tablero_minas = generar_minas(filas_cols, num_minas)
     
     # Guardar ambas matrices 
-    tablero = {
-        'visual': tablero_visual,
-        'minas': tablero_minas,
-        'tamaño': filas_cols
-    } 
+    tablero = {'visual': tablero_visual, 'minas': tablero_minas,'tamaño': filas_cols} 
     return
 
 def generar_minas(filas_cols, num_minas): 
@@ -153,7 +125,7 @@ def imprimir_tablero():
     for i in range(tamaño):
         letra_fila = chr(65 + i) #en ascii A=65, B=66 ...
         print(f"{letra_fila}   ", end="")
-        
+    
         for col in range(tamaño):
             print(f"{visual[i][col]} ", end=" ")
         print()
@@ -185,9 +157,14 @@ def partida():
 
         # validar si perdio
         if not continuar:
+            os.system('cls' if os.name == 'nt' else 'clear')
+            imprimir_tablero()            
+            
             fin = time.time()
-            tiempo_total = int(fin - inicio) #tiempo total en segundos
-            print(f"\nDuraste {tiempo_total} segundos antes de explotar.")            
+            tiempo_total = int(fin - inicio)
+            minutos = tiempo_total // 60
+            segundos = tiempo_total % 60
+            print(f"\nLo siento, perdiste\nDuraste {minutos} min {segundos} s antes de explotar.")            
             jugando = False # Termina el juego
 
         # validar si gano
@@ -210,7 +187,7 @@ def partida():
                 
                 # Mostramos tablero final limpio
                 imprimir_tablero()                
-
+                print("\n ¡FELICIDADES! ¡HAS GANADO EL JUEGO! ")
                 print(f"\nTiempo: {minutos} min {segundos} s")
                 
                 jugando = False 
